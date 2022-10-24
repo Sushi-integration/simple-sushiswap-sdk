@@ -4,6 +4,6 @@ import { SushiswapPairContractFactory } from './sushiswap-pair-contract.factory'
 
 export class SushiswapPairContractFactoryPublic extends SushiswapPairContractFactory {
   constructor(chainId: ChainId, providerUrl?: string | undefined) {
-    super(new EthersProvider(chainId, providerUrl));
+    super(new EthersProvider(chainId, providerUrl), chainId);
   }
 }

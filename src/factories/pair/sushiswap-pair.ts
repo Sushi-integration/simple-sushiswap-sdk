@@ -1,15 +1,16 @@
-import { ErrorCodes } from '../../common/errors/error-codes';
-import { SushiswapError } from '../../common/errors/sushiswap-error';
-import { isAddress } from '../../common/utils/is-address';
-import { EthersProvider } from '../../ethers-provider';
-import { TokensFactory } from '../token/tokens.factory';
+import { ErrorCodes } from "../../common/errors/error-codes";
+import { SushiswapError } from "../../common/errors/sushiswap-error";
+import { isAddress } from "../../common/utils/is-address";
+import { TradePath } from "../../enums/trade-path";
+import { EthersProvider } from "../../ethers-provider";
+import { TokensFactory } from "../token/tokens.factory";
 import {
   SushiswapPairContextForChainId,
   SushiswapPairContextForProviderUrl,
-} from './models/sushiswap-pair-contexts';
-import { SushiswapPairFactoryContext } from './models/sushiswap-pair-factory-context';
-import { SushiswapPairSettings } from './models/sushiswap-pair-settings';
-import { SushiswapPairFactory } from './sushiswap-pair.factory';
+} from "./models/sushiswap-pair-contexts";
+import { SushiswapPairFactoryContext } from "./models/sushiswap-pair-factory-context";
+import { SushiswapPairSettings } from "./models/sushiswap-pair-settings";
+import { SushiswapPairFactory } from "./sushiswap-pair.factory";
 
 export class SushiswapPair {
   private _ethersProvider: EthersProvider;
@@ -21,42 +22,42 @@ export class SushiswapPair {
   ) {
     if (!this._sushiswapPairContext.fromTokenContractAddress) {
       throw new SushiswapError(
-        'Must have a `fromTokenContractAddress` on the context',
+        "Must have a `fromTokenContractAddress` on the context",
         ErrorCodes.fromTokenContractAddressRequired
       );
     }
 
     if (!isAddress(this._sushiswapPairContext.fromTokenContractAddress)) {
       throw new SushiswapError(
-        '`fromTokenContractAddress` is not a valid contract address',
+        "`fromTokenContractAddress` is not a valid contract address",
         ErrorCodes.fromTokenContractAddressNotValid
       );
     }
 
     if (!this._sushiswapPairContext.toTokenContractAddress) {
       throw new SushiswapError(
-        'Must have a `toTokenContractAddress` on the context',
+        "Must have a `toTokenContractAddress` on the context",
         ErrorCodes.toTokenContractAddressRequired
       );
     }
 
     if (!isAddress(this._sushiswapPairContext.toTokenContractAddress)) {
       throw new SushiswapError(
-        '`toTokenContractAddress` is not a valid contract address',
+        "`toTokenContractAddress` is not a valid contract address",
         ErrorCodes.toTokenContractAddressNotValid
       );
     }
 
     if (!this._sushiswapPairContext.ethereumAddress) {
       throw new SushiswapError(
-        'Must have a `ethereumAddress` on the context',
+        "Must have a `ethereumAddress` on the context",
         ErrorCodes.ethereumAddressRequired
       );
     }
 
     if (!isAddress(this._sushiswapPairContext.ethereumAddress)) {
       throw new SushiswapError(
-        '`ethereumAddress` is not a valid address',
+        "`ethereumAddress` is not a valid address",
         ErrorCodes.ethereumAddressNotValid
       );
     }
@@ -79,7 +80,7 @@ export class SushiswapPair {
     }
 
     throw new SushiswapError(
-      'You must have a chainId on the context.',
+      "You must have a chainId on the context.",
       ErrorCodes.youMustSupplyAChainId
     );
   }
@@ -111,6 +112,10 @@ export class SushiswapPair {
       ethersProvider: this._ethersProvider,
     };
 
-    return new SushiswapPairFactory(sushiswapFactoryContext);
+    return new SushiswapPairFactory(
+      sushiswapFactoryContext,
+      (<SushiswapPairContextForChainId>this._sushiswapPairContext).chainId,
+      this._sushiswapPairContext.tradePath
+    );
   }
 }

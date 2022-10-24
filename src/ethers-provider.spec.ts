@@ -12,7 +12,7 @@ describe('EthersProvider', () => {
     it('getContract', () => {
       const result = ethersProvider.getContract<PairContractContext>(
         JSON.stringify(ContractContext.pairAbi),
-        ContractContext.pairAddress
+        new ContractContext(ChainId.MAINNET).pairAddress()
       );
 
       expect(result).not.toBeUndefined();
@@ -57,7 +57,7 @@ describe('EthersProvider', () => {
     it('getContract', () => {
       const result = ethersProvider.getContract<PairContractContext>(
         JSON.stringify(ContractContext.pairAbi),
-        ContractContext.pairAddress
+        new ContractContext(ChainId.MAINNET).pairAddress()
       );
 
       expect(result).not.toBeUndefined();

@@ -16,6 +16,16 @@ export class COMP {
     };
   }
 
+  public static MATIC() {
+    return {
+      chainId: ChainId.MATIC,
+      contractAddress: '0x8505b9d2254A7Ae468c0E9dd10Ccea3A837aef5c',
+      decimals: 18,
+      symbol: 'COMP',
+      name:'(PoS) Compound'
+    }
+  }
+
   /**
    * Get COMP token info by chain id
    * @param chainId The chain id
@@ -24,6 +34,8 @@ export class COMP {
     switch (chainId) {
       case ChainId.MAINNET:
         return this.MAINNET();
+      case ChainId.MATIC:
+        return this.MATIC()
       default:
         throw new SushiswapError(
           `${chainId} is not allowed`,

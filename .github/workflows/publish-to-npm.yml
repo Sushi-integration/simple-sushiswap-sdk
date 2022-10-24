@@ -1,0 +1,25 @@
+name: Test and Publish to NPM
+on:
+  push:
+    branches: [master]
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 12
+      
+      - id: install 
+        run: npm install
+      - id: test
+        run: npm test
+      - id: prepublish
+        run: npm run prepublishOnly
+      
+      - id: publish
+        uses: JS-DevTools/npm-publish@v1
+        with:
+          token: ${{ secrets.NPM_TOKEN }}

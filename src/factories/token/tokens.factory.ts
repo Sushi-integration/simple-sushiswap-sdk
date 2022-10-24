@@ -70,6 +70,7 @@ export class TokensFactory {
 
       return tokens;
     } catch (error) {
+      console.log(error)
       throw new SushiswapError(
         'invalid from or to contract tokens',
         ErrorCodes.invalidFromOrToContractToken

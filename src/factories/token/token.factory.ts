@@ -18,7 +18,8 @@ export class TokenFactory {
 
   constructor(
     private _tokenContractAddress: string,
-    private _ethersProvider: EthersProvider
+    private _ethersProvider: EthersProvider,
+    private chainId: number
   ) {}
 
   /**
@@ -72,7 +73,7 @@ export class TokenFactory {
   public async allowance(ethereumAddress: string): Promise<string> {
     const allowance = await this._erc20TokenContracy.allowance(
       ethereumAddress,
-      ContractContext.routerAddress
+      new ContractContext(this.chainId).routerAddress()
     );
 
     return allowance.toHexString();
@@ -128,7 +129,7 @@ export class TokenFactory {
         {
           reference: 'allowance',
           methodName: 'allowance',
-          methodParameters: [ethereumAddress, ContractContext.routerAddress],
+          methodParameters: [ethereumAddress, new ContractContext(this.chainId).routerAddress()],
         },
         {
           reference: 'balanceOf',

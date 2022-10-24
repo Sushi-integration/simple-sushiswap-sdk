@@ -1,7 +1,9 @@
-# simple-sushiswap-sdk
+# simple-sushiswap-sdk-v2
 
-[![npm version](https://badge.fury.io/js/simple-sushiswap-sdk.svg)](https://badge.fury.io/js/simple-sushiswap-sdk)
-![downloads](https://img.shields.io/npm/dw/simple-sushiswap-sdk)
+<!-- [![npm version](https://badge.fury.io/js/simple-sushiswap-sdk.svg)](https://badge.fury.io/js/simple-sushiswap-sdk)
+![downloads](https://img.shields.io/npm/dw/simple-sushiswap-sdk) -->
+[![npm version](https://badge.fury.io/js/simple-sushiswap-sdk-v2.svg)](https://badge.fury.io/js/simple-sushiswap-sdk-v2)
+![downloads](https://img.shields.io/npm/dw/simple-sushiswap-sdk-v2)
 
 Sushiswap SDK which handles the routes automatically for you, changes in trade quotes reactive subscriptions, exposure to formatted easy to understand information, bringing back the best trade quotes automatically, generating transactions for you and much more. All the Sushiswap logic for you in a simple to easy understand interface to hook straight into your dApp without having to understand how it all works.
 
@@ -62,6 +64,8 @@ $ yarn add simple-sushiswap-sdk
 
 The sushiswap pair factory is an instance which is joint together with the `from` token and the `to` token, it is all self contained in the instance and exposes easy methods for you to call to start using sushiswap.
 
+**Note**: In order to make use of the Polygon network or testnets make sure to provide your own `providerUrl`, as the default one is only that of the Ethereum mainnet
+
 ```ts
 export class SushiswapPair {
   constructor(
@@ -78,6 +82,8 @@ export enum ChainId {
   RINKEBY = 4,
   GÖRLI = 5,
   KOVAN = 42,
+  MATIC = 137,
+  MUMBAI = 80001
 }
 
 interface SushiswapPairContextBase {
@@ -117,7 +123,7 @@ export class SushiswapPairSettings {
 ```
 
 ```ts
-import { SushiswapPair, ChainId } from 'simple-sushiswap-sdk';
+import { SushiswapPair, ChainId, TradePath } from 'simple-sushiswap-sdk';
 
 const sushiswapPair = new SushiswapPair({
   // the contract address of the token you want to convert FROM
@@ -127,8 +133,10 @@ const sushiswapPair = new SushiswapPair({
   // the ethereum address of the user using this part of the dApp
   ethereumAddress: '0xB1E6079212888f0bE0cf55874B2EB9d7a5e02cD9',
   chainId: ChainId.MAINNET,
+  // the kind of transaction that should be carried out
+  tradePath: TradePath.erc20ToErc20
   // you can pass in the provider url as well if you want
-  // providerUrl: YOUR_PROVIDER_URL,
+  providerUrl: YOUR_PROVIDER_URL,
   settings: new SushiswapPairSettings({
     // if not supplied it will use `0.005` which is 0.5%
     // please pass it in as a full number decimal so 0.7%
@@ -205,7 +213,7 @@ export interface Token {
 #### Usage
 
 ```ts
-import { SushiswapPair, ChainId } from 'simple-sushiswap-sdk';
+import { SushiswapPair, ChainId, TradePath } from 'simple-sushiswap-sdk';
 
 const sushiswapPair = new SushiswapPair({
   // the contract address of the token you want to convert FROM
@@ -217,6 +225,8 @@ const sushiswapPair = new SushiswapPair({
   // you can pass in the provider url as well if you want
   // providerUrl: YOUR_PROVIDER_URL,
   chainId: ChainId.MAINNET,
+  // the kind of transaction that should be carried out
+  tradePath: TradePath.erc20ToErc20
 });
 
 // now to create the factory you just do
@@ -267,6 +277,8 @@ const sushiswapPair = new SushiswapPair({
   // you can pass in the provider url as well if you want
   // providerUrl: YOUR_PROVIDER_URL,
   chainId: ChainId.MAINNET,
+  // the kind of transaction that should be carried out
+  tradePath: TradePath.erc20ToErc20
 });
 
 // now to create the factory you just do
@@ -290,7 +302,7 @@ This will generate you the trade with all the information you need to show to th
 
 It will also return a `hasEnoughAllowance` in the `TradeContext` trade response, if the allowance approved for moving tokens is below the amount sending to the sushiswap router this will be false if not true. We still return the quote but if this is `false` you need to make sure you send the approval generated data first before being able to do the swap. We advise you check the allowance before you execute the trade which you should do anyway or it will fail onchain. You can use our `hasGotEnoughAllowance` method below to check and also our `generateApproveMaxAllowanceData` to generate the transaction for the user to appove moving of the tokens.
 
-Please note `ROPSTEN`, `RINKEBY`, `GÖRLI` and `KOVAN` will only use `WETH` as a main currency unlike `MAINNET` which uses everything, so you will get less routes on those testnets.
+Please note `ROPSTEN`, `RINKEBY`, `GÖRLI`, `MUMBAI` and `KOVAN` will only use `WETH` or `WMATIC` as a main currency unlike `MAINNET` and `MATIC` which uses everything, so you will get less routes on those testnets.
 
 ```ts
 async trade(amount: string): Promise<TradeContext>
@@ -397,6 +409,8 @@ export enum ChainId {
   RINKEBY = 4,
   GÖRLI = 5,
   KOVAN = 42,
+  MATIC = 137,
+  MUMBAI = 80001
 }
 ```
 
@@ -417,6 +431,8 @@ const sushiswapPair = new SushiswapPair({
   // you can pass in the provider url as well if you want
   // providerUrl: YOUR_PROVIDER_URL,
   chainId: ChainId.MAINNET,
+  // the kind of transaction that should be carried out
+  tradePath: TradePath.erc20ToErc20
 });
 
 // now to create the factory you just do
@@ -660,7 +676,7 @@ trade.destroy();
 #### ETH > ERC20
 
 ```ts
-import { SushiswapPair, WETH, ChainId, TradeContext } from 'simple-sushiswap-sdk';
+import { SushiswapPair, WETH, TradePath, ChainId, TradeContext } from 'simple-sushiswap-sdk';
 
 const sushiswapPair = new SushiswapPair({
   // use the WETH import from the lib, bare in mind you should use the
@@ -674,6 +690,8 @@ const sushiswapPair = new SushiswapPair({
   // you can pass in the provider url as well if you want
   // providerUrl: YOUR_PROVIDER_URL,
   chainId: ChainId.MAINNET,
+  // the kind of transaction that should be carried out
+  tradePath: TradePath.ethToErc20
 });
 
 // now to create the factory you just do
@@ -2029,7 +2047,7 @@ trade.destroy();
 #### ERC20 > ETH
 
 ```ts
-import { SushiswapPair, WETH, ChainId, TradeContext } from 'simple-sushiswap-sdk';
+import { SushiswapPair, WETH, ChainId, TradeContext, TradePath } from 'simple-sushiswap-sdk';
 
 const sushiswapPair = new SushiswapPair({
   // the contract address of the token you want to convert FROM
@@ -2043,6 +2061,8 @@ const sushiswapPair = new SushiswapPair({
   // you can pass in the provider url as well if you want
   // providerUrl: YOUR_PROVIDER_URL,
   chainId: ChainId.MAINNET,
+  // the kind of transaction that should be carried out
+  tradePath: TradePath.erc20ToEth
 });
 
 // now to create the factory you just do
@@ -3228,7 +3248,7 @@ async hasGotEnoughAllowance(amount: string): Promise<boolean>
 #### Usage
 
 ```ts
-import { SushiswapPair, ChainId } from 'simple-sushiswap-sdk';
+import { SushiswapPair, ChainId, TradePath } from 'simple-sushiswap-sdk';
 
 const sushiswapPair = new SushiswapPair({
   // the contract address of the token you want to convert FROM
@@ -3240,6 +3260,8 @@ const sushiswapPair = new SushiswapPair({
   // you can pass in the provider url as well if you want
   // providerUrl: YOUR_PROVIDER_URL,
   chainId: ChainId.MAINNET,
+  // the kind of transaction that should be carried out
+  tradePath: TradePath.erc20ToErc20
 });
 
 // now to create the factory you just do
@@ -3263,7 +3285,7 @@ async allowance(): Promise<string>
 #### Usage
 
 ```ts
-import { SushiswapPair, ChainId } from 'simple-sushiswap-sdk';
+import { SushiswapPair, ChainId, TradePath } from 'simple-sushiswap-sdk';
 
 const sushiswapPair = new SushiswapPair({
   // the contract address of the token you want to convert FROM
@@ -3275,6 +3297,8 @@ const sushiswapPair = new SushiswapPair({
   // you can pass in the provider url as well if you want
   // providerUrl: YOUR_PROVIDER_URL,
   chainId: ChainId.MAINNET,
+  // the kind of transaction that should be carried out
+  tradePath: TradePath.erc20ToErc20
 });
 
 // now to create the factory you just do
@@ -3287,7 +3311,7 @@ console.log(allowance);
 
 ### generateApproveMaxAllowanceData
 
-This method will generate the transaction for the approval of moving tokens for the user. This uses the max hex possible which means they will not have to do this again if they want to swap from the SAME from token again later. Please note the approval is per each erc20 token, so if they picked another from token after they swapped they would need to do this again. You have to send the and sign the transaction from within your dApp. Remember when they do not have enough allowance it will mean doing 2 transaction, 1 to extend the allowance using this transaction then the next one to actually execute the trade. If you call this when doing `eth` > `erc20` it will always throw an error as you only need to do this when moving `erc20 > eth` and `erc20 > erc20`.
+This method will generate the transaction for the approval of moving tokens for the user. This uses the max hex possible which means they will not have to do this again if they want to swap from the SAME from token again later. Please note the approval is per each erc20 token, so if they picked another from token after they swapped they would need to do this again. You have to send and sign the transaction from within your dApp. Remember when they do not have enough allowance it will mean doing 2 transaction, 1 to extend the allowance using this transaction then the next one to actually execute the trade. If you call this when doing `eth` > `erc20` it will always throw an error as you only need to do this when moving `erc20 > eth` and `erc20 > erc20`.
 
 ```ts
 async generateApproveMaxAllowanceData(): Promise<Transaction>
@@ -3351,7 +3375,7 @@ async findBestRoute(amountToTrade: string): Promise<RouteQuote>
 #### Usage
 
 ```ts
-import { SushiswapPair, ChainId } from 'simple-sushiswap-sdk';
+import { SushiswapPair, ChainId, TradePath } from 'simple-sushiswap-sdk';
 
 const sushiswapPair = new SushiswapPair({
   // the contract address of the token you want to convert FROM
@@ -3363,6 +3387,8 @@ const sushiswapPair = new SushiswapPair({
   // you can pass in the provider url as well if you want
   // providerUrl: YOUR_PROVIDER_URL,
   chainId: ChainId.MAINNET,
+  // the kind of transaction that should be carried out
+  tradePath: TradePath.erc20ToErc20
 });
 
 // now to create the factory you just do
@@ -3417,7 +3443,7 @@ async findAllPossibleRoutesWithQuote(amountToTrade: string): Promise<RouteQuote[
 #### Usage
 
 ```ts
-import { SushiswapPair, ChainId } from 'simple-sushiswap-sdk';
+import { SushiswapPair, ChainId, TradePath } from 'simple-sushiswap-sdk';
 
 const sushiswapPair = new SushiswapPair({
   // the contract address of the token you want to convert FROM
@@ -3429,6 +3455,8 @@ const sushiswapPair = new SushiswapPair({
   // you can pass in the provider url as well if you want
   // providerUrl: YOUR_PROVIDER_URL,
   chainId: ChainId.MAINNET,
+  // the kind of transaction that should be carried out
+  tradePath: TradePath.erc20ToErc20
 });
 
 // now to create the factory you just do
@@ -3615,7 +3643,7 @@ export interface Token {
 #### Usage
 
 ```ts
-import { SushiswapPair, ChainId } from 'simple-sushiswap-sdk';
+import { SushiswapPair, ChainId, TradePath } from 'simple-sushiswap-sdk';
 
 const sushiswapPair = new SushiswapPair({
   // the contract address of the token you want to convert FROM
@@ -3627,6 +3655,8 @@ const sushiswapPair = new SushiswapPair({
   // you can pass in the provider url as well if you want
   // providerUrl: YOUR_PROVIDER_URL,
   chainId: ChainId.MAINNET,
+  // the kind of transaction that should be carried out
+  tradePath: TradePath.erc20ToErc20
 });
 
 // now to create the factory you just do
@@ -4054,7 +4084,7 @@ export interface SushiswapPair {
 #### In SushiswapPairFactory
 
 ```ts
-import { SushiswapPair, ChainId } from 'simple-sushiswap-sdk';
+import { SushiswapPair, ChainId, TradePath } from 'simple-sushiswap-sdk';
 
 // the contract address of the token you want to convert FROM
 const fromTokenContractAddress = '0x1985365e9f78359a9B6AD760e32412f4a445E862';
@@ -4068,14 +4098,14 @@ const sushiswapPair = new SushiswapPair(
   fromTokenContractAddress,
   ethereumAddress,
   ChainId.MAINNET
-  // you can pass in the provider url as well if you want
-  // providerUrl: YOUR_PROVIDER_URL,
+  tradePath: TradePath.erc20ToErc20
+  providerUrl: YOUR_PROVIDER_URL,
 );
 
 // now to create the factory you just do
 const sushiswapPairFactory = await sushiswapPair.createFactory();
 
-// contract calls our here, this is only for the sushiswap pair contract https://etherscan.io/address/0xC0AEe478e3658e2610c5F7A4A2E1777cE9e4f2Ac#code
+// contract calls here, are only for the sushiswap pair contract https://etherscan.io/address/0xC0AEe478e3658e2610c5F7A4A2E1777cE9e4f2Ac#code
 sushiswapPairFactory.contractCalls;
 ```
 
@@ -4349,16 +4379,14 @@ Ran all test suites.
 
 Please raise any issues in the below link.
 
-https://github.com/joshstevens19/simple-sushiswap-sdk
+https://github.com/michaelessiet/simple-sushiswap-sdk
 
 ## Thanks And Support
 
-This package is brought to you by [Josh Stevens](https://github.com/joshstevens19). My aim is to be able to keep creating these awesome packages to help the Ethereum space grow with easier-to-use tools to allow the learning curve to get involved with blockchain development easier and making Ethereum ecosystem better. If you want to help with that vision and allow me to invest more time into creating cool packages or if this package has saved you a lot of development time donations are welcome, every little helps. By donating, you are supporting me to be able to maintain existing packages, extend existing packages (as Ethereum matures), and allowing me to build more packages for Ethereum due to being able to invest more time into it. Thanks, everyone!
+This package was developed by [Josh Stevens](https://github.com/joshstevens19) and now maintained by [Michael Essiet](https://github.com/michaelessiet). Our aim is to be able to keep creating these awesome packages to help the Ethereum space grow with easier-to-use tools to allow the learning curve to get involved with blockchain development easier and making Ethereum ecosystem better. If you want to help with that vision and allow us to invest more time into creating cool packages or if this package has saved you a lot of development time donations are welcome, every little helps. By donating, you are supporting us to be able to maintain existing packages, extend existing packages (as Ethereum matures), and allowing us to build more packages for Ethereum due to being able to invest more time into it. Thanks, everyone!
 
 ## Direct donations
 
-Direct donations any token accepted - Eth address > `0x699c2daD091ffcF18f3cd9E8495929CA3a64dFe1`
+Direct donations to Michael, any token accepted - Eth address > `0x3449afBf888f21fF83E55Bd15d0061602034016c`
 
-## Github sponsors
-
-[sponsor me](https://github.com/sponsors/joshstevens19) via github using fiat money
+Direct donations to Josh, any token accepted - Eth address > `0x699c2daD091ffcF18f3cd9E8495929CA3a64dFe1`

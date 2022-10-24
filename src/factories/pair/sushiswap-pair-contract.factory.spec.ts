@@ -8,7 +8,7 @@ describe('SushiswapPairContractFactory', () => {
   const ethersProvider = new EthersProvider(ChainId.MAINNET);
 
   const sushiswapPairContractFactory = new SushiswapPairContractFactory(
-    ethersProvider
+    ethersProvider, ChainId.MAINNET
   );
 
   it('allPairs', async () => {

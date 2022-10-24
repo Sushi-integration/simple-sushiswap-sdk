@@ -9,7 +9,7 @@ describe('TokenFactory', () => {
   const ethersProvider = new EthersProvider(ChainId.MAINNET);
   const token = MOCK1INCH();
 
-  const tokenFactory = new TokenFactory(token.contractAddress, ethersProvider);
+  const tokenFactory = new TokenFactory(token.contractAddress, ethersProvider,ChainId.MAINNET);
 
   it('getToken', async () => {
     const result = await tokenFactory.getToken();
@@ -23,7 +23,7 @@ describe('TokenFactory', () => {
 
   it('generateApproveAllowanceData', () => {
     const result = tokenFactory.generateApproveAllowanceData(
-      ContractContext.routerAddress,
+      new ContractContext(ChainId.MAINNET).routerAddress(),
       '0x05'
     );
     expect(result).toEqual(

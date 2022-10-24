@@ -1,4 +1,5 @@
 import { ChainId, ErrorCodes, SushiswapError, SushiswapPair } from '../..';
+import { TradePath } from '../../enums/trade-path';
 import { MOCK1INCH } from '../../mocks/1inch-token.mock';
 import { MOCKAAVE } from '../../mocks/aave-token.mock';
 import { MockEthereumAddress } from '../../mocks/ethereum-address.mock';
@@ -110,6 +111,7 @@ describe('SushiswapPair', () => {
       toTokenContractAddress: MOCKAAVE().contractAddress,
       ethereumAddress: MockEthereumAddress(),
       chainId: ChainId.MAINNET,
+      tradePath: TradePath.erc20ToErc20
     };
 
     const sushiswapPair = new SushiswapPair(context);
@@ -125,6 +127,7 @@ describe('SushiswapPair', () => {
       ethereumAddress: MockEthereumAddress(),
       chainId: ChainId.MAINNET,
       providerUrl: MOCK_PROVIDER_URL(),
+      tradePath: TradePath.erc20ToErc20
     };
 
     const sushiswapPair = new SushiswapPair(context);
@@ -140,6 +143,7 @@ describe('SushiswapPair', () => {
         toTokenContractAddress: MOCKAAVE().contractAddress,
         ethereumAddress: MockEthereumAddress(),
         chainId: ChainId.MAINNET,
+        tradePath: TradePath.erc20ToErc20
       };
 
       const sushiswapPair = new SushiswapPair(context);

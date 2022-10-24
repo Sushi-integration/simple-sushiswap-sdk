@@ -1,4 +1,5 @@
 import { ChainId } from '../enums/chain-id';
+import { TradePath } from '../enums/trade-path';
 import { SushiswapPairSettings } from '../factories/pair/models/sushiswap-pair-settings';
 import { SushiswapPair } from '../factories/pair/sushiswap-pair';
 
@@ -21,6 +22,7 @@ const routeTest = async () => {
     toTokenContractAddress,
     ethereumAddress,
     chainId: ChainId.MAINNET,
+    tradePath: TradePath.erc20ToErc20,
     settings: new SushiswapPairSettings({
       // if not supplied it use `0.005` which is 0.5%;
       // all figures
@@ -38,7 +40,7 @@ const routeTest = async () => {
     console.log(trade);
 
     console.log(new Date().getTime());
-  } catch (error) {
+  } catch (error: any) {
     console.log(error.message);
   }
 

@@ -23,7 +23,7 @@ describe('TokenFactoryPublic', () => {
 
   it('generateApproveAllowanceData', () => {
     const result = tokenFactoryPublic.generateApproveAllowanceData(
-      ContractContext.routerAddress,
+      new ContractContext(ChainId.MAINNET).routerAddress(),
       '0x05'
     );
     expect(result).toEqual(

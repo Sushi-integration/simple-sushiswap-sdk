@@ -1,54 +1,60 @@
-import BigNumber from 'bignumber.js';
-import { Subject } from 'rxjs';
-import { Constants } from '../../common/constants';
-import { ContractContext } from '../../common/contract-context';
-import { ErrorCodes } from '../../common/errors/error-codes';
-import { SushiswapError } from '../../common/errors/sushiswap-error';
-import { hexlify } from '../../common/utils/hexlify';
-import { parseEther } from '../../common/utils/parse-ether';
-import { toEthersBigNumber } from '../../common/utils/to-ethers-big-number';
-import { getTradePath } from '../../common/utils/trade-path';
-import { TradePath } from '../../enums/trade-path';
-import { BestRouteQuotes } from '../router/models/best-route-quotes';
-import { RouteQuote } from '../router/models/route-quote';
-import { SushiswapRouterContractFactory } from '../router/sushiswap-router-contract.factory';
-import { SushiswapRouterFactory } from '../router/sushiswap-router.factory';
-import { AllowanceAndBalanceOf } from '../token/models/allowance-balance-of';
-import { Token } from '../token/models/token';
-import { TokenFactory } from '../token/token.factory';
-import { SushiswapPairFactoryContext } from './models/sushiswap-pair-factory-context';
-import { TradeContext } from './models/trade-context';
-import { Transaction } from './models/transaction';
-import { SushiswapPairContractFactory } from './sushiswap-pair-contract.factory';
+import BigNumber from "bignumber.js";
+import { Subject } from "rxjs";
+import { Constants } from "../../common/constants";
+import { ContractContext } from "../../common/contract-context";
+import { ErrorCodes } from "../../common/errors/error-codes";
+import { SushiswapError } from "../../common/errors/sushiswap-error";
+import { hexlify } from "../../common/utils/hexlify";
+import { parseEther } from "../../common/utils/parse-ether";
+import { toEthersBigNumber } from "../../common/utils/to-ethers-big-number";
+import { TradePath } from "../../enums/trade-path";
+import { BestRouteQuotes } from "../router/models/best-route-quotes";
+import { RouteQuote } from "../router/models/route-quote";
+import { SushiswapRouterContractFactory } from "../router/sushiswap-router-contract.factory";
+import { SushiswapRouterFactory } from "../router/sushiswap-router.factory";
+import { AllowanceAndBalanceOf } from "../token/models/allowance-balance-of";
+import { Token } from "../token/models/token";
+import { TokenFactory } from "../token/token.factory";
+import { SushiswapPairFactoryContext } from "./models/sushiswap-pair-factory-context";
+import { TradeContext } from "./models/trade-context";
+import { Transaction } from "./models/transaction";
+import { SushiswapPairContractFactory } from "./sushiswap-pair-contract.factory";
 
 export class SushiswapPairFactory {
   private readonly LIQUIDITY_PROVIDER_FEE = 0.003;
 
   private _fromTokenFactory = new TokenFactory(
     this._sushiswapPairFactoryContext.fromToken.contractAddress,
-    this._sushiswapPairFactoryContext.ethersProvider
+    this._sushiswapPairFactoryContext.ethersProvider,
+    this.chainId
   );
 
   private _SushiswapRouterContractFactory = new SushiswapRouterContractFactory(
-    this._sushiswapPairFactoryContext.ethersProvider
+    this._sushiswapPairFactoryContext.ethersProvider,
+    this.chainId
   );
 
   private _sushiswapPairFactory = new SushiswapPairContractFactory(
-    this._sushiswapPairFactoryContext.ethersProvider
+    this._sushiswapPairFactoryContext.ethersProvider,
+    this.chainId
   );
 
   private _SushiswapRouterFactory = new SushiswapRouterFactory(
     this._sushiswapPairFactoryContext.fromToken,
     this._sushiswapPairFactoryContext.toToken,
     this._sushiswapPairFactoryContext.settings.disableMultihops,
-    this._sushiswapPairFactoryContext.ethersProvider
+    this._sushiswapPairFactoryContext.ethersProvider,
+    this.chainId,
+    this.tradePath
   );
 
   private _quoteChangeTimeout: NodeJS.Timeout | undefined;
   private _quoteChanged$: Subject<TradeContext> = new Subject<TradeContext>();
 
   constructor(
-    private _sushiswapPairFactoryContext: SushiswapPairFactoryContext
+    private _sushiswapPairFactoryContext: SushiswapPairFactoryContext,
+    private chainId: number,
+    private tradePath: TradePath
   ) {}
 
   /**
@@ -77,7 +83,7 @@ export class SushiswapPairFactory {
    * @param amount The amount
    */
   private async executeTradePath(amount: BigNumber): Promise<TradeContext> {
-    switch (this.tradePath()) {
+    switch (this.tradePath) {
       case TradePath.erc20ToEth:
         return await this.getTokenTradeAmountErc20ToEth(amount);
       case TradePath.ethToErc20:
@@ -86,7 +92,7 @@ export class SushiswapPairFactory {
         return await this.getTokenTradeAmountErc20ToErc20(amount);
       default:
         throw new SushiswapError(
-          `${this.tradePath()} is not defined`,
+          `${this.tradePath} is not defined`,
           ErrorCodes.tradePathIsNotSupported
         );
     }
@@ -161,7 +167,7 @@ export class SushiswapPairFactory {
    * @param amount The amount you want to swap
    */
   public async hasGotEnoughAllowance(amount: string): Promise<boolean> {
-    if (this.tradePath() === TradePath.ethToErc20) {
+    if (this.tradePath === TradePath.ethToErc20) {
       return true;
     }
 
@@ -175,7 +181,7 @@ export class SushiswapPairFactory {
    * @param amount The amount you want to swap
    */
   private _hasGotEnoughAllowance(amount: string, allowance: string): boolean {
-    if (this.tradePath() === TradePath.ethToErc20) {
+    if (this.tradePath === TradePath.ethToErc20) {
       return true;
     }
 
@@ -263,8 +269,8 @@ export class SushiswapPairFactory {
    * on the users behalf. Only valid when the `fromToken` is a ERC20 token.
    */
   public async allowance(): Promise<string> {
-    if (this.tradePath() === TradePath.ethToErc20) {
-      return '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff';
+    if (this.tradePath === TradePath.ethToErc20) {
+      return "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff";
     }
 
     const allowance = await this._fromTokenFactory.allowance(
@@ -279,16 +285,16 @@ export class SushiswapPairFactory {
    * This will return the data for you to send as a transaction
    */
   public async generateApproveMaxAllowanceData(): Promise<Transaction> {
-    if (this.tradePath() === TradePath.ethToErc20) {
+    if (this.tradePath === TradePath.ethToErc20) {
       throw new SushiswapError(
-        'You do not need to generate approve sushiswap allowance when doing eth > erc20',
+        "You do not need to generate approve sushiswap allowance when doing eth > erc20",
         ErrorCodes.generateApproveMaxAllowanceDataNotAllowed
       );
     }
 
     const data = this._fromTokenFactory.generateApproveAllowanceData(
-      ContractContext.routerAddress,
-      '0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff'
+      new ContractContext(this.chainId).routerAddress(),
+      "0xffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
     );
 
     return {
@@ -594,7 +600,7 @@ export class SushiswapPairFactory {
    */
   private buildUpTransactionErc20(data: string): Transaction {
     return {
-      to: ContractContext.routerAddress,
+      to: new ContractContext(this.chainId).routerAddress(),
       from: this._sushiswapPairFactoryContext.ethereumAddress,
       data,
       value: Constants.EMPTY_HEX_STRING,
@@ -611,19 +617,11 @@ export class SushiswapPairFactory {
     data: string
   ): Transaction {
     return {
-      to: ContractContext.routerAddress,
+      to: new ContractContext(this.chainId).routerAddress(),
       from: this._sushiswapPairFactoryContext.ethereumAddress,
       data,
       value: toEthersBigNumber(parseEther(ethValue)).toHexString(),
     };
-  }
-
-  /**
-   * Get the trade path
-   */
-  private tradePath(): TradePath {
-    const network = this._sushiswapPairFactoryContext.ethersProvider.network();
-    return getTradePath(network.chainId, this.fromToken, this.toToken);
   }
 
   /**

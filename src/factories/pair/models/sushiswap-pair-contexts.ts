@@ -1,10 +1,12 @@
 import { ChainId } from '../../../enums/chain-id';
+import { TradePath } from '../../../enums/trade-path';
 import { SushiswapPairSettings } from './sushiswap-pair-settings';
 
 interface SushiswapPairContextBase {
   fromTokenContractAddress: string;
   toTokenContractAddress: string;
   ethereumAddress: string;
+  tradePath: TradePath
   settings?: SushiswapPairSettings | undefined;
 }
 

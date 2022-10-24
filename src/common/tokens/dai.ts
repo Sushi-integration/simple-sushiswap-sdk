@@ -16,6 +16,16 @@ export class DAI {
     };
   }
 
+  public static MATIC() {
+    return {
+      chainId: ChainId.MATIC,
+      contractAddress: '0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063',
+      decimals: 18,
+      symbol: 'DAI',
+      name: '(PoS) Dai Stablecoin'
+    }
+  }
+
   /**
    * Get DAI token info by chain id
    * @param chainId The chain id
@@ -24,6 +34,8 @@ export class DAI {
     switch (chainId) {
       case ChainId.MAINNET:
         return this.MAINNET();
+      case ChainId.MATIC:
+        return this.MATIC();
       default:
         throw new SushiswapError(
           `${chainId} is not allowed`,

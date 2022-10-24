@@ -16,6 +16,16 @@ export class USDT {
     };
   }
 
+  public static MATIC() {
+    return {
+      chainId: ChainId.MATIC,
+      contractAddress: '0xc2132D05D31c914a87C6611C10748AEb04B58e8F',
+      decimals: 6,
+      symbol: 'USDT',
+      name:'Tether USD'
+    }
+  }
+
   /**
    * Get USDT token info by chain id
    * @param chainId The chain id
@@ -24,6 +34,8 @@ export class USDT {
     switch (chainId) {
       case ChainId.MAINNET:
         return this.MAINNET();
+      case ChainId.MATIC:
+        return this.MATIC()
       default:
         throw new SushiswapError(
           `${chainId} is not allowed`,
