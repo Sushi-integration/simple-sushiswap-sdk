@@ -2,6 +2,8 @@
 
 <!-- [![npm version](https://badge.fury.io/js/simple-sushiswap-sdk.svg)](https://badge.fury.io/js/simple-sushiswap-sdk)
 ![downloads](https://img.shields.io/npm/dw/simple-sushiswap-sdk) -->
+[![npm version](https://badge.fury.io/js/simple-sushiswap-sdk-v2.svg)](https://badge.fury.io/js/simple-sushiswap-sdk-v2)
+![downloads](https://img.shields.io/npm/dw/simple-sushiswap-sdk-v2)
 
 Sushiswap SDK which handles the routes automatically for you, changes in trade quotes reactive subscriptions, exposure to formatted easy to understand information, bringing back the best trade quotes automatically, generating transactions for you and much more. All the Sushiswap logic for you in a simple to easy understand interface to hook straight into your dApp without having to understand how it all works.
 
