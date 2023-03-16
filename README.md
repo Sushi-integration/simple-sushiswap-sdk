@@ -144,7 +144,7 @@ const sushiswapPair = new SushiswapPair({
 });
 
 // now to create the factory you just do
-const sushiswapPair = await sushiswapPair.createFactory();
+const factory = await sushiswapPair.createFactory();
 ```
 
 ## Catching error
